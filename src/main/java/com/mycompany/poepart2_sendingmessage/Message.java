@@ -21,6 +21,11 @@ public class Message {
         this.text = text;
     }
 
+    // getters
+    public String getId() { return id; }
+    public String getRecipient() { return recipient; }
+    public String getText() { return text; }
+
     @Override
     public String toString() {
         return "Message ID: " + id +
@@ -28,4 +33,3 @@ public class Message {
                " Text: " + text;
     }
 }
-
