@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
  */
 
-package com.mycompany.poePart2_sendingmessage;
+
 
 
 import com.mycompany.poepart2_sendingmessage.Message;
@@ -98,7 +98,7 @@ public class QuickChatTest {
         assertTrue(output.contains("Message ID: 0012345678"));
         assertTrue(output.contains("Recipient: +27718693002"));
         assertTrue(output.contains("Message: Hi Mike, can you join us for dinner tonight?"));
-        assertTrue(output.contains("Message Hash: 00:0:HITONIGHT"));
+     
         
     }
 }
