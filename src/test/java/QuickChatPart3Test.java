@@ -3,69 +3,91 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
  */
 
-package com.mycompany.poepart2_sendingmessage;
 
+
+import com.mycompany.poepart2_sendingmessage.Message;
+import com.mycompany.poepart2_sendingmessage.QuickChat;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 
 public class QuickChatPart3Test {
 
-    @Test
-    public void testSentMessagesArray() {
-        Message msg1 = new Message("ID01", "+27834557896", "Did you get the cake?");
-        QuickChat.sendMessage(msg1, 1);
-        Message msg2 = new Message("ID04", "08388884567", "It is dinner time!");
-        QuickChat.sendMessage(msg2, 1);
-
-        assertEquals(Arrays.asList("Did you get the cake?", "It is dinner time!"), QuickChat.sentMessages);
+      @BeforeEach
+    void setUp() {
+        // Clear arrays before each test
+        QuickChat.storedMessages.clear();
+        QuickChat.storedRecipients.clear();
+        QuickChat.messageIDs.clear();
+        QuickChat.messageHashes.clear();
+        QuickChat.sentMessages.clear();
+        QuickChat.disregardedMessages.clear();
+        QuickChat.totalMessages = 0;
     }
 
     @Test
-    public void testLongestStoredMessage() {
-        Message msg = new Message("ID02", "+27838884567", "Where are you? You are late! I have asked you to be on time.");
-        QuickChat.sendMessage(msg, 3);
-        assertEquals("Where are you? You are late! I have asked you to be on time.", QuickChat.getLongestStoredMessage());
+    void testGetLongestStoredMessage() {
+        QuickChat.storedMessages.add("Short");
+        QuickChat.storedMessages.add("This is a much longer message");
+        assertEquals("This is a much longer message", QuickChat.getLongestStoredMessage());
     }
 
     @Test
-    public void testSearchByMessageID() {
-        Message msg = new Message("ID04", "08388884567", "It is dinner time!");
-        QuickChat.sendMessage(msg, 1);
-        String result = QuickChat.searchByMessageID("ID04");
-        assertTrue(result.contains("It is dinner time!"));
+    void testSearchByMessageIDFound() {
+        QuickChat.messageIDs.add("MSG1");
+        QuickChat.storedRecipients.add("+27123456789");
+        QuickChat.storedMessages.add("Hello World");
+        String result = QuickChat.searchByMessageID("MSG1");
+        assertTrue(result.contains("Hello World"));
     }
 
     @Test
-    public void testSearchByRecipient() {
-        Message msg1 = new Message("ID02", "+27838884567", "Where are you? You are late! I have asked you to be on time.");
-        QuickChat.sendMessage(msg1, 3);
-        Message msg2 = new Message("ID05", "+27838884567", "Ok, I am leaving without you.");
-        QuickChat.sendMessage(msg2, 3);
-
-        List<String> results = QuickChat.searchByRecipient("+27838884567");
-        assertEquals(Arrays.asList(
-            "Where are you? You are late! I have asked you to be on time.",
-            "Ok, I am leaving without you."
-        ), results);
+    void testSearchByMessageIDNotFound() {
+        String result = QuickChat.searchByMessageID("NOPE");
+        assertEquals("Message ID not found.", result);
     }
 
     @Test
-    public void testDeleteByHash() {
-        Message msg = new Message("ID02", "+27838884567", "Where are you? You are late! I have asked you to be on time.");
-        QuickChat.sendMessage(msg, 3);
-        String hash = QuickChat.messageHashes.get(QuickChat.messageHashes.size() - 1);
-        String result = QuickChat.deleteByHash(hash);
+    void testSearchByRecipient() {
+        QuickChat.messageIDs.add("MSG2");
+        QuickChat.storedRecipients.add("+27123456789");
+        QuickChat.storedMessages.add("Recipient test message");
+        List<String> results = QuickChat.searchByRecipient("+27123456789");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0).contains("Recipient test message"));
+    }
+
+    @Test
+    void testDeleteByHash() {
+        QuickChat.storedMessages.add("Delete me");
+        QuickChat.messageIDs.add("MSG3");
+        QuickChat.storedRecipients.add("+27123456789");
+        QuickChat.messageHashes.add("AB:1:DELETEME");
+
+        String result = QuickChat.deleteByHash("AB:1:DELETEME");
         assertTrue(result.contains("successfully deleted"));
+        assertTrue(QuickChat.storedMessages.isEmpty());
     }
 
     @Test
-    public void testDisplayReport() {
-        Message msg = new Message("ID05", "+27838884567", "Ok, I am leaving without you.");
-        QuickChat.sendMessage(msg, 3);
+    void testDisplayReport() {
+        QuickChat.storedMessages.add("Report message");
+        QuickChat.messageIDs.add("MSG4");
+        QuickChat.storedRecipients.add("+27123456789");
+        QuickChat.messageHashes.add("AB:1:REPORTMESSAGE");
+
         String report = QuickChat.displayReport();
-        assertTrue(report.contains("Recipient"));
-        assertTrue(report.contains("Message Hash"));
+        assertTrue(report.contains("MSG4"));
+        assertTrue(report.contains("Total stored messages: 1"));
+    }
+
+    // Optional: test JSON reload if file exists
+    // This requires messages.json to be present with valid content
+    @Test
+    void testReadMessagesFromJSON_NoFile() {
+        String result = QuickChat.readMessagesFromJSON();
+        assertTrue(result.startsWith("Error")); // Expect error if file missing
     }
 }

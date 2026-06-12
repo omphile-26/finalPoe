@@ -54,7 +54,7 @@ public class User_registration_and_login {
         registeredPassword = password;
         registeredCellNumber = cellNumber;
 
-        return "Welcome user " + username + ", username, " + username + " user last name: It is great to see you.";
+        return "Welcome user " + username + " ! " + username + " It is great to see you.";
     }
 
     // Method: login user

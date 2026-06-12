@@ -13,6 +13,11 @@ import java.util.List;
 import com.google.gson.Gson;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class QuickChat {
     // A shared list that stores all Message objects created while the program runs
@@ -102,86 +107,123 @@ public class QuickChat {
         }
     }
     
-    //Print messages
-    public static void printMessages(){
-        //for loop
-        for (Message msg : messages) {
-            System.out.println(msg);
+            //Print messages
+            public static void printMessages(){
+                //for loop
+                for (Message msg : messages) {
+                    System.out.println(msg);
+                }
+            }
+
+            //return total messages
+            public static int returnTotalMessages(){
+                return totalMessages;
+            }
+
+            // Store QuickChat in JSON
+            //did some research at w3school
+            // Placeholder: use a JSON library like Gson
+            // Example: new Gson().toJson(msg);
+            public static void storeMessageJSON(Message msg) {
+                Gson gson = new Gson();
+                String json = gson.toJson(msg);
+
+                try (FileWriter writer = new FileWriter("messages.json", true)) {
+                    writer.write(json + System.lineSeparator());
+                    System.out.println("Message stored in JSON file: " + json);
+                } catch (IOException e) {
+                    System.out.println("Error storing message: " + e.getMessage());
+                }
+            }
+
+            // === PART 3 FEATURES ===
+            public static String getLongestStoredMessage() {
+                String longest = "";
+                for (String msg : storedMessages) {
+                    if (msg.length() > longest.length()) longest = msg;
+                }
+                return longest;
+            }
+
+                public static String searchByMessageID(String id) {
+            int index = messageIDs.indexOf(id);
+            if (index != -1 && index < storedMessages.size()) {
+                return "Message ID: " + messageIDs.get(index) +
+                       ", Recipient: " + storedRecipients.get(index) +
+                       ", Message: " + storedMessages.get(index);
+            }
+            return "Message ID not found.";
         }
-    }
-    
-    //return total messages
-    public static int returnTotalMessages(){
-        return totalMessages;
-    }
-    
-    // Store QuickChat in JSON
-    //did some research at w3school
-    // Placeholder: use a JSON library like Gson
-    // Example: new Gson().toJson(msg);
-    public static void storeMessageJSON(Message msg) {
-        Gson gson = new Gson();
-        String json = gson.toJson(msg);
-        
-        try (FileWriter writer = new FileWriter("messages.json", true)) {
-            writer.write(json + System.lineSeparator());
-            System.out.println("Message stored in JSON file: " + json);
+
+           public static List<String> searchByRecipient(String recipient) {
+            List<String> results = new ArrayList<>();
+            for (int i = 0; i < storedRecipients.size(); i++) {
+                if (storedRecipients.get(i).equals(recipient)) {
+                    results.add(storedMessages.get(i));
+                }
+            }
+            return results;
+        }
+
+
+            public static String deleteByHash(String hash) {
+                int index = messageHashes.indexOf(hash);
+                if (index != -1 && index < storedMessages.size()) {
+                    String deleted = storedMessages.remove(index);
+                    messageHashes.remove(index);
+                    messageIDs.remove(index);
+                    return "Message: \"" + deleted + "\" successfully deleted.";
+                }
+                return "Hash not found.";
+            }
+
+            public static String displayReport() {
+            if (storedMessages.isEmpty()) {
+                return "No stored messages available.";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < storedMessages.size(); i++) {
+                sb.append("Message ID: ").append(messageIDs.get(i)).append("\n")
+                  .append("Recipient: ").append(storedRecipients.get(i)).append("\n")
+                  .append("Message: ").append(storedMessages.get(i)).append("\n")
+                  .append("Message Hash: ").append(messageHashes.get(i)).append("\n")
+                  .append("-----------------------------\n");
+            }
+            // === NEW FEATURE: Summary line ===
+            sb.append("Total stored messages: ").append(storedMessages.size()).append("\n");
+
+            return sb.toString();
+        }
+            // === NEW FEATURE: Read JSON file back into arrays ===
+// This method reads messages.json and repopulates stored arrays.
+// It ensures you can reload data and display it, as required by the rubric.
+public static String readMessagesFromJSON() {
+    try {
+        // Read the file into a JSON array
+        JSONArray jsonArray = new JSONArray(new String(Files.readAllBytes(Paths.get("messages.json"))));
+
+        // Clear current arrays before reloading
+        storedMessages.clear();
+        storedRecipients.clear();
+        messageIDs.clear();
+        messageHashes.clear();
+
+        // Loop through JSON objects and repopulate arrays
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject obj = jsonArray.getJSONObject(i);
+                messageIDs.add(obj.getString("id"));
+                storedRecipients.add(obj.getString("recipient"));
+                storedMessages.add(obj.getString("text"));
+                messageHashes.add(obj.getString("hash"));
+            }
+
+            return "Messages successfully loaded from JSON file. Total: " + storedMessages.size();
         } catch (IOException e) {
-            System.out.println("Error storing message: " + e.getMessage());
+            return "Error reading JSON file: " + e.getMessage();
+        } catch (JSONException e) {
+            return "Error parsing JSON file: " + e.getMessage();
         }
     }
-    
-    // === PART 3 FEATURES ===
-    public static String getLongestStoredMessage() {
-        String longest = "";
-        for (String msg : storedMessages) {
-            if (msg.length() > longest.length()) longest = msg;
+
         }
-        return longest;
-    }
-
-    public static String searchByMessageID(String id) {
-        int index = messageIDs.indexOf(id);
-        if (index != -1 && index < messages.size()) {
-            return "Recipient: " + messages.get(index).getRecipient() +
-                   ", Message: " + messages.get(index).getText();
-        }
-        return "Message ID not found.";
-    }
-
-   public static List<String> searchByRecipient(String recipient) {
-    List<String> results = new ArrayList<>();
-    for (int i = 0; i < storedRecipients.size(); i++) {
-        if (storedRecipients.get(i).equals(recipient)) {
-            results.add(storedMessages.get(i));
-        }
-    }
-    return results;
-}
-
-
-    public static String deleteByHash(String hash) {
-        int index = messageHashes.indexOf(hash);
-        if (index != -1 && index < storedMessages.size()) {
-            String deleted = storedMessages.remove(index);
-            messageHashes.remove(index);
-            messageIDs.remove(index);
-            return "Message: \"" + deleted + "\" successfully deleted.";
-        }
-        return "Hash not found.";
-    }
-
-    public static String displayReport() {
-    if (storedMessages.isEmpty()) {
-        return "No stored messages available.";
-    }
-
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < storedMessages.size(); i++) {
-        sb.append("Message Hash: ").append(messageHashes.get(i)).append("\n")
-          .append("Recipient: ").append(messageIDs.get(i)).append("\n")
-          .append("Message: ").append(storedMessages.get(i)).append("\n\n");
-    }
-    return sb.toString();
-}
-}
