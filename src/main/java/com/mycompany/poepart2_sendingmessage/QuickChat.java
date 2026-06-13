@@ -37,15 +37,14 @@ public class QuickChat {
         return messageID.length() <= 10;
     }
     
-    //checking recipient cell(greater and equal to 10, starts with + code)
+    //checking recipient cell(equal to 11 numbers, starts with + code)
     public static String checkRecipientCell(String recipient) {
-        //checks that the number has 10 or fewer characters and the cellphone number starts with a +sign like "+27"
-        //all conditions must be true, so we use the "&" sign
-        if (recipient.startsWith("+") && recipient.length() >= 10 && recipient.length() <= 11) {
-            return "Cell phone number successfully captured.";
+        //checks that the number has 11 characters and the cellphone number starts with a +sign like "+27"
+        if (recipient.matches("\\+27\\d{9}")) {
+        return "Cell phone number successfully captured.";
         } else {
             return "Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.";
-        }
+        } 
     }
     
     // creating a message Hash
@@ -90,8 +89,8 @@ public class QuickChat {
             //disregard
             case 2:
                 disregardedMessages.add(msg.getText());
-                return "Message disregarded.";
-                
+                return "Press 0 to delete the message";
+
             //store the message
             case 3:
                 storedMessages.add(msg.getText());

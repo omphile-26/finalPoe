@@ -12,8 +12,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- ✅ Use Java 17 (widely supported LTS) -->
-        <maven.compiler.release>17</maven.compiler.release>
+        <!-- Use Java 25 (widely supported LTS) -->
+        <maven.compiler.release>25</maven.compiler.release>
     </properties>
 
     <dependencies>

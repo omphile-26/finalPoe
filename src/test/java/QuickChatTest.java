@@ -24,14 +24,16 @@ public class QuickChatTest {
 
     // Test: Recipient number formatting
     @Test
-    public static String checkRecipientCell(String cellNumber) {
-    // Must start with +27 and be followed by 9 digits
-    if (cellNumber.matches("\\+27\\d{9}")) {
-        return "Cell phone number successfully captured.";
-    } else {
-        return "Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.";
+    public void testCheckRecipientCell() {
+        // Valid: +27 followed by 9 digits (total 12 characters)
+        assertEquals("Cell phone number successfully captured.",
+                     QuickChat.checkRecipientCell("+27123456789"));
+
+        // Invalid: missing + or wrong length
+        assertEquals("Cell phone number is incorrectly formatted or does not contain an international code. Please correct the number and try again.",
+                     QuickChat.checkRecipientCell("07123456789"));
     }
-}
+
 
 
     // Test: Message length validation (<= 250 characters)
@@ -46,14 +48,17 @@ public class QuickChatTest {
     }
 
     // Test: Message Hash generation
+     @Test
+    void testCreateMessageHash() {
+        String result = QuickChat.createMessageHash("msg01", 1, "Hello");
+        assertEquals("ms:1:HELLOHELLO", result);
+    }
+
     @Test
-    public static String createMessageHash(String messageID, int totalMessages, String messageText) {
-    String[] words = messageText.split(" ");
-    String firstWord = words[0].replaceAll("[^a-zA-Z]", ""); // strip punctuation
-    String lastWord = words[words.length - 1].replaceAll("[^a-zA-Z]", "");
-    return messageID.substring(0, 2) + ":" + totalMessages + ":" +
-           firstWord.toUpperCase() + lastWord.toUpperCase();
-}
+    void testCreateMessageHashWithPunctuation() {
+        String result = QuickChat.createMessageHash("id99", 2, "Hi Mike!");
+        assertEquals("id:2:HIMIKE", result); // punctuation stripped
+    }
 
     // Test: Send Message options
     @Test
